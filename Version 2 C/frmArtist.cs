@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Windows.Forms;
 
 namespace Version_2_C
@@ -12,11 +13,25 @@ namespace Version_2_C
 
         private clsArtist _Artist;
         private clsWorksList _WorksList;
+        // Dictionary to keep track of Artists and their respective form
+        private static Dictionary<clsArtist, frmArtist> _ArtistFormList = new Dictionary<clsArtist, frmArtist>();
 
+        public static void Run(clsArtist prArtist) {
+            frmArtist lcArtistForm;
+            if (!_ArtistFormList.TryGetValue(prArtist, out lcArtistForm))
+            {
+                lcArtistForm = new frmArtist();
+                _ArtistFormList.Add(prArtist, lcArtistForm);
+                lcArtistForm.SetDetails(prArtist);
+            } else
+            {
+                lcArtistForm.Show();
+                lcArtistForm.Activate();
+            }
+        }
 
         private void updateDisplay()
         {
-            txtName.Enabled = txtName.Text == "";
             if (_WorksList.SortOrder == 0)
             {
                 _WorksList.SortByName();
@@ -36,9 +51,11 @@ namespace Version_2_C
         public void SetDetails(clsArtist prArtist)
         {
             _Artist = prArtist;
+            txtName.Enabled = string.IsNullOrEmpty(_Artist.Name);
+            frmMain.Instance.updateDisplay();
             updateForm();
             updateDisplay();
-            ShowDialog();
+            Show();
         }
 
         private void updateForm()
@@ -63,6 +80,7 @@ namespace Version_2_C
             if (lcIndex >= 0 && MessageBox.Show("Are you sure?", "Deleting work", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
             {
                 _WorksList.RemoveAt(lcIndex);
+                frmMain.Instance.updateDisplay();
                 updateDisplay();
             }
         }
@@ -73,17 +91,27 @@ namespace Version_2_C
             if (!string.IsNullOrEmpty(lcReply))
             {
                 _WorksList.AddWork(lcReply[0]);
+                frmMain.Instance.updateDisplay();
                 updateDisplay();
             }
         }
 
-        private void btnClose_Click(object sender, EventArgs e)
-        {
+        private void btnClose_Click(object sender, EventArgs e) {
             if (isValid() == true)
-            {
-                pushData();
-                Close();
-            }
+                try {
+                    pushData();
+                    if (txtName.Enabled) {
+                        _Artist.NewArtist();
+                        MessageBox.Show("Artist added!", "Success");
+                        frmMain.Instance.updateDisplay();
+                        txtName.Enabled = false;
+                    }
+                    Hide();
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(ex.Message);
+                }
         }
 
         private Boolean isValid()

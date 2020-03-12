@@ -1,10 +1,16 @@
 namespace Version_2_C
 {
-    public partial class frmPhotograph : frmWork
+    public sealed partial class frmPhotograph : frmWork
     {
-        public frmPhotograph()
+        private frmPhotograph()
         {
             InitializeComponent();
+        }
+
+        public static readonly frmPhotograph Instance = new frmPhotograph();
+
+        public static void Run(clsPhotograph prPhotograph) {
+            Instance.SetDetails(prPhotograph);
         }
 
         protected override void updateForm()

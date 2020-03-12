@@ -3,16 +3,21 @@ using System.Windows.Forms;
 
 namespace Version_2_C
 {
-    public partial class frmMain : Form
+    public sealed partial class frmMain : Form
     {
-        public frmMain()
+        private frmMain()
         {
             InitializeComponent();
         }
 
+        private static readonly frmMain _Instance = new frmMain();
+
+
         private clsArtistList _ArtistList = new clsArtistList();
 
-        private void updateDisplay()
+        public static frmMain Instance => _Instance;
+
+        public void updateDisplay()
         {
             lstArtists.DataSource = null;
             string[] lcDisplayList = new string[_ArtistList.Count];
@@ -25,9 +30,7 @@ namespace Version_2_C
         {
             try
             {
-                _ArtistList.NewArtist();
-                MessageBox.Show("Artist added!", "Success");
-                updateDisplay();
+                frmArtist.Run(new clsArtist(_ArtistList));
             }
             catch (Exception ex)
             {
@@ -43,8 +46,7 @@ namespace Version_2_C
             if (lcKey != null)
                 try
                 {
-                    _ArtistList.EditArtist(lcKey);
-                    updateDisplay();
+                    frmArtist.Run(_ArtistList[lcKey]);
                 }
                 catch (Exception ex)
                 {

@@ -10,12 +10,21 @@ namespace Version_2_C
             InitializeComponent();
         }
 
+        public delegate void Notify(string prGalleryName);
         private static readonly frmMain _Instance = new frmMain();
 
 
         private clsArtistList _ArtistList = new clsArtistList();
 
         public static frmMain Instance => _Instance;
+
+        public event Notify GalleryNameChanged;
+
+        private void updateTitle(string prGalleryName)
+        {
+            if (!string.IsNullOrEmpty(prGalleryName))
+                Text = "Gallery - " + prGalleryName;
+        }
 
         public void updateDisplay()
         {
@@ -98,6 +107,14 @@ namespace Version_2_C
                 MessageBox.Show(ex.Message, "File retrieve error");
             }
             updateDisplay();
+            GalleryNameChanged += new Notify(updateTitle);
+            GalleryNameChanged(_ArtistList.GalleryName); // event raising!
+        }
+
+        private void btnGalleryName_Click(object sender, EventArgs e)
+        {
+            _ArtistList.GalleryName = txtGalleryName.Text;
+            GalleryNameChanged(_ArtistList.GalleryName);
         }
     }
 }

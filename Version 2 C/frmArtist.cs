@@ -16,6 +16,12 @@ namespace Version_2_C
         // Dictionary to keep track of Artists and their respective form
         private static Dictionary<clsArtist, frmArtist> _ArtistFormList = new Dictionary<clsArtist, frmArtist>();
 
+        private void updateTitle(string prGalleryName)
+        {
+            if (!string.IsNullOrEmpty(prGalleryName))
+                Text = "Artist details - " + prGalleryName;
+        }
+
         public static void Run(clsArtist prArtist) {
             frmArtist lcArtistForm;
             if (!_ArtistFormList.TryGetValue(prArtist, out lcArtistForm))
@@ -56,6 +62,8 @@ namespace Version_2_C
             updateForm();
             updateDisplay();
             Show();
+            frmMain.Instance.GalleryNameChanged += new frmMain.Notify(updateTitle);
+            updateTitle(_Artist.ArtistList.GalleryName);
         }
 
         private void updateForm()
